@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+gen/python/basic.egg-info/PKG-INFO
+gen/python/basic.egg-info/SOURCES.txt
+gen/python/basic.egg-info/dependency_links.txt
+gen/python/basic.egg-info/requires.txt
+gen/python/basic.egg-info/top_level.txt
+gen/python/example/__init__.py
+gen/python/example/v1/__init__.py
+gen/python/example/v1/example_pb2.py
+gen/python/example/v1/example_pb2.pyi
+gen/python/example/v1/example_pb2_grpc.py

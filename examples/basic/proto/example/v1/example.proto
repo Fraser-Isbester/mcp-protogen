@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package example.v1;
+
+// UserService manages user operations
+service UserService {
+    // CreateUser creates a new user
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+
+    // UpdateUser updates an existing user
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
+
+    // GetUser retrieves a user by ID
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+}
+
+message User {
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    repeated string roles = 4;
+    UserStatus status = 5;
+}
+
+enum UserStatus {
+    USER_STATUS_UNSPECIFIED = 0;
+    USER_STATUS_ACTIVE = 1;
+    USER_STATUS_INACTIVE = 2;
+    USER_STATUS_SUSPENDED = 3;
+}
+
+message CreateUserRequest {
+    string name = 1;
+    string email = 2;
+    repeated string roles = 3;
+}
+
+message CreateUserResponse {
+    User user = 1;
+}
+
+message UpdateUserRequest {
+    string id = 1;
+    optional string name = 2;
+    optional string email = 3;
+    repeated string roles = 4;
+}
+
+message UpdateUserResponse {
+    User user = 1;
+}
+
+message GetUserRequest {
+    string id = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
+}
