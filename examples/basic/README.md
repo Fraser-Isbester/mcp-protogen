@@ -1,6 +1,6 @@
-# mcp-protogen/examples/basic
+# protoc-gen-mcp/examples/basic
 
-Basic example of using mcp-protogen to generate a python grpc mcp server.
+Basic example of using protoc-gen-mcp to generate a python grpc mcp server.
 
 ## Usage
 

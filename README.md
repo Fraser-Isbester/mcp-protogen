@@ -1,2 +1,2 @@
-# mcp-protogen
-Generate a plain english interface to your API.
+# protoc-gen-mcp
+Talk to your gRPC APIs.
