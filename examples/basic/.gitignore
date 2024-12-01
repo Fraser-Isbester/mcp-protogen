@@ -1,0 +1,15 @@
+# Stnadard Python .gitignore file that uses uv
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Distribution / packaging
+.Python
+dist/
+eggs/
+.eggs/
+lib/
+*.egg-info
+
+# PyInstaller
+*.spec

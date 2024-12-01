@@ -8,3 +8,6 @@ plugins:
     out: ../gen/python
   - remote: buf.build/protocolbuffers/pyi:v24.4
     out: ../gen/python
+  - local: ../../../protoc-gen-mcp
+    out: ../gen/python
+    strategy: directory

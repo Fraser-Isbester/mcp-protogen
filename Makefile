@@ -12,7 +12,7 @@ BINARY_NAME=protoc-gen-mcp
 all: test build
 
 build:
-	$(GOBUILD) -o bin/$(BINARY_NAME) cmd/protoc-gen-mcp/main.go
+	$(GOBUILD) -o $(BINARY_NAME) cmd/protoc-gen-mcp/main.go
 
 test:
 	$(GOTEST) -v ./...
@@ -21,12 +21,14 @@ lint:
 	golangci-lint run
 	buf lint
 
-generate:
-	buf generate
+generate: build
+	rm -rf examples/**/gen
+	cd examples/basic/proto && buf generate
 
 clean:
 	rm -f bin/$(BINARY_NAME)
 	rm -rf examples/**/gen
+	rm -f protoc-gen-mcp
 
 install:
 	$(GOBUILD) -o $(GOPATH)/bin/$(BINARY_NAME) cmd/protoc-gen-mcp/main.go

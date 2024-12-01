@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package example.v1;
 
+option go_package = "example/v1;examplev1";
+
 // UserService manages user operations
 service UserService {
     // CreateUser creates a new user
