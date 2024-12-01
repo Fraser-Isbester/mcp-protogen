@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "asyncio>=3.4.3",
+    "googleapis-common-protos>=1.66.0",
     "grpcio>=1.68.0",
     "grpcio-tools>=1.68.0",
     "mcp>=1.0.0",
@@ -12,5 +14,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-# Include generated files in the package
 package-dir = { "" = "gen/python" }
+
+[project.scripts]
+mcp-grpc-server = "server.server:serve"
