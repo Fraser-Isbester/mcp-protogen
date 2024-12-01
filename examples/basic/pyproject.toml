@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["grpcio>=1.68.0", "grpcio-tools>=1.68.0", "protobuf>=5.29.0"]
+dependencies = [
+    "grpcio>=1.68.0",
+    "grpcio-tools>=1.68.0",
+    "mcp>=1.0.0",
+    "protobuf>=5.29.0",
+]
 
 [tool.setuptools]
 # Include generated files in the package

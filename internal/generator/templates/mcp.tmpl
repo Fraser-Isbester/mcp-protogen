@@ -1,58 +1,49 @@
-import os
 import json
 import logging
 from typing import Any, Sequence
+
 from mcp.server import Server
-from mcp.types import Resource, Tool, TextContent, ImageContent, EmbeddedResource
-from pydantic import AnyUrl
+from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('example.v1-server')
+logger = logging.getLogger('{{.Package}}-server')
 
-app = Server('example.v1-server')
+app = Server('{{.Package}}-server')
 
 @app.list_tools()
 async def list_tools() -> list[Tool]:
     return [
+        {{- range .Services}}
+        {{- range .Methods}}
         Tool(
-            name='CreateUser',
-            description='CreateUser method from UserService service',
+            name='{{.Name}}',
+            description='{{.Description}}',
             inputSchema={
                 'type': 'object',
                 'properties': {
+                    {{- range .InputFields}}
+                    '{{.Name}}': {
+                        'type': '{{.Type}}',
+                        'description': '{{.Description}}'
+                    },
+                    {{- end}}
                 },
-                'required': []
+                'required': [{{range .RequiredFields}}'{{.}}',{{end}}]
             }
         ),
-        Tool(
-            name='UpdateUser',
-            description='UpdateUser method from UserService service',
-            inputSchema={
-                'type': 'object',
-                'properties': {
-                },
-                'required': []
-            }
-        ),
-        Tool(
-            name='GetUser',
-            description='GetUser method from UserService service',
-            inputSchema={
-                'type': 'object',
-                'properties': {
-                },
-                'required': []
-            }
-        ),
+        {{- end}}
+        {{- end}}
     ]
 
 @app.call_tool()
 async def call_tool(name: str, arguments: Any) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
     if name not in [
-        'CreateUser',
-        'UpdateUser',
-        'GetUser',
+        {{- range .Services}}
+        {{- range .Methods}}
+        '{{.Name}}',
+        {{- end}}
+        {{- end}}
     ]:
         raise ValueError(f'Unknown tool: {name}')
 
@@ -63,6 +54,7 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent | ImageCo
             text=json.dumps({'result': 'Not implemented'}, indent=2)
         )
     ]
+
 async def main():
     from mcp.server.stdio import stdio_server
     async with stdio_server() as (read_stream, write_stream):
