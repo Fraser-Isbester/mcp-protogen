@@ -7,7 +7,9 @@ import (
 	"strings"
 	"text/template"
 
+	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -32,9 +34,16 @@ type Service struct {
 	Methods []Method
 }
 
+type Message struct {
+	Name        string
+	Description string
+	Fields      []Field
+}
+
 type TemplateData struct {
 	Package  string
 	Services []Service
+	Messages []Message
 }
 
 // ConvertType converts protobuf types to JSON schema types
@@ -53,12 +62,71 @@ func ConvertType(field protoreflect.FieldDescriptor) string {
 	}
 }
 
+// func isNestedMessage(msg *protogen.Message, file *protogen.File) bool {
+// 	// Check if this message appears in any other message's nested messages
+// 	for _, otherMsg := range file.Messages {
+// 		for _, nestedMsg := range otherMsg.Messages {
+// 			if msg == nestedMsg {
+// 				return true
+// 			}
+// 		}
+// 	}
+// 	return false
+// }
+
+// hasResourceOption checks if a message has the google.api.resource option
+func hasResourceOption(msg *protogen.Message) bool {
+	opts := msg.Desc.Options()
+	if opts == nil {
+		return false
+	}
+
+	resource := proto.GetExtension(opts, annotations.E_Resource)
+	if resource == nil {
+		return false
+	}
+
+	resourceOpt, ok := resource.(*annotations.ResourceDescriptor)
+	return ok && resourceOpt != nil
+}
+
 func Generate(gen *protogen.Plugin, file *protogen.File) error {
+	packageParts := strings.Split(string(file.Desc.Package()), ".")
+	baseName := packageParts[0]
+
 	data := TemplateData{
 		Package:  string(file.Desc.Package()),
 		Services: make([]Service, 0, len(file.Services)),
+		Messages: make([]Message, 0),
 	}
 
+	// Process messages
+	for _, msg := range file.Messages {
+		// Only include messages that have the resource option
+		if !hasResourceOption(msg) {
+			continue
+		}
+
+		message := Message{
+			Name:        string(msg.Desc.Name()),
+			Description: fmt.Sprintf("Resource type %s", msg.Desc.Name()),
+			Fields:      make([]Field, 0),
+		}
+
+		// Process message fields
+		for _, field := range msg.Fields {
+			f := Field{
+				Name:        string(field.Desc.Name()),
+				Type:        ConvertType(field.Desc),
+				Description: fmt.Sprintf("Field %s", field.Desc.Name()),
+			}
+			message.Fields = append(message.Fields, f)
+		}
+
+		data.Messages = append(data.Messages, message)
+	}
+
+	// Process services
 	for _, service := range file.Services {
 		s := Service{
 			Name:    string(service.Desc.Name()),
@@ -73,7 +141,6 @@ func Generate(gen *protogen.Plugin, file *protogen.File) error {
 				RequiredFields: make([]string, 0),
 			}
 
-			// Process input message fields
 			fields := method.Input.Desc.Fields()
 			for i := 0; i < fields.Len(); i++ {
 				field := fields.Get(i)
@@ -111,13 +178,11 @@ func Generate(gen *protogen.Plugin, file *protogen.File) error {
 		return fmt.Errorf("failed to execute template: %v", err)
 	}
 
-	// Generate the file with the correct name
-	packageParts := strings.Split(string(file.Desc.Package()), ".")
-	baseName := packageParts[0]
-
 	filename := fmt.Sprintf("%s/%s_mcp.py",
 		strings.ReplaceAll(string(file.Desc.Package()), ".", "/"),
-		baseName)
+		baseName,
+	)
+
 	g := gen.NewGeneratedFile(filename, "")
 	_, err = g.Write(buf.Bytes())
 	return err

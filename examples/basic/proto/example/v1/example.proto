@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package example.v1;
 
+import "google/api/resource.proto";
+
 option go_package = "example/v1;examplev1";
 
 // UserService manages user operations
@@ -17,6 +19,12 @@ service UserService {
 }
 
 message User {
+
+    option (google.api.resource) = {
+        type: "example.v1.User"
+        pattern: "users/{user}"
+    };
+
     string id = 1;
     string name = 2;
     string email = 3;
